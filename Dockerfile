@@ -31,8 +31,7 @@ RUN \
   apt-get install sbt && \
   sbt sbtVersion
 
-COPY . /usr/app
-WORKDIR /usr/app
+COPY . /
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV JAVA_HOME       /usr/lib/jvm/java-8-oracle
@@ -41,6 +40,5 @@ ENV LC_ALL          en_US.UTF-8
 ENV NAME            seed
 ENV PORT            5000
 
-CMD sbt "run $NAME $PORT"
-
-
+ENTRYPOINT ["/run.sh"]
+CMD []
