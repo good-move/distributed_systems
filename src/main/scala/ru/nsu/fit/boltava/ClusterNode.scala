@@ -18,10 +18,12 @@ class ClusterNode(config: NodeConfig, messageWriter: MessageWriter) extends Acto
 
   val cluster = Cluster(context.system)
   val mediator = DistributedPubSub(context.system).mediator
-  var users = Set.empty[String]
+
+  var state = 0
 
   override def preStart(): Unit = {
-    cluster.subscribe(self, classOf[MemberEvent])
+    cluster.subscribe(self, InitialStateAsEvents, classOf[MemberEvent])
+    mediator ! Subscribe(config.subscriptionTopic, self)
   }
 
   override def postStop(): Unit = {
@@ -31,27 +33,29 @@ class ClusterNode(config: NodeConfig, messageWriter: MessageWriter) extends Acto
 
   override def receive: Receive = {
     case MemberUp(member) if member.address == cluster.selfAddress =>
-      mediator ! Subscribe(config.subscriptionTopic, self)
+      joinChat()
     case SubscribeAck(Subscribe(config.subscriptionTopic, _, `self`)) =>
       joinChat()
     case UnsubscribeAck(Unsubscribe(config.subscriptionTopic, _, `self`)) =>
       context.stop(self)
 
-    case envelope: Envelope => writeMessage(envelope)
+    case envelope: Envelope =>
+      writeMessage(envelope)
     case SendLeave =>
       leaveChat()
       mediator ! Unsubscribe(config.subscriptionTopic, self)
-    case SendText(text) => publish(Envelope(config.name, TextMessage(text)))
-    case ListActive     => messageWriter.list(users.toList)
+    case SendText(text) =>
+      publish(Envelope(config.name, TextMessage(text)))
   }
 
   private def joinChat(): Unit = {
-    users += config.name
-    publish(Envelope(config.name, Join))
+    state += 1
+    if (state == 2) {
+      publish(Envelope(config.name, Join))
+    }
   }
 
   private def leaveChat(): Unit = {
-    users -= config.name
     publish(Envelope(config.name, Leave))
   }
 
@@ -61,10 +65,8 @@ class ClusterNode(config: NodeConfig, messageWriter: MessageWriter) extends Acto
         case TextMessage(text) =>
           messageWriter.textMessage(sender, text)
         case Join if sender != config.name =>
-          users = users + sender
           messageWriter.joinMessage(sender)
         case Leave if sender != config.name =>
-          users = users - sender
           messageWriter.leaveMessage(sender)
         case _ =>
       }

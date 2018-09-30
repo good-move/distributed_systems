@@ -12,4 +12,3 @@ final case class Envelope(name: String, userMessage: ChatMessage) extends Messag
 sealed trait Command extends Message
 final case class SendText(text: String) extends Command
 case object SendLeave extends Command
-case object ListActive extends Command

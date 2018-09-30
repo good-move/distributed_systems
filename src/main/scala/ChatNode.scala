@@ -1,7 +1,8 @@
 import akka.actor.{ActorSystem, Props}
 import com.typesafe.config.ConfigFactory
+
 import ru.nsu.fit.boltava.io.{CommandParser, ConsoleMessageReader, ConsoleMessageWriter}
-import ru.nsu.fit.boltava.{ClusterNode, Leave, NodeConfig, SendLeave, Settings}
+import ru.nsu.fit.boltava.{ClusterNode, NodeConfig, SendLeave, Settings}
 
 object ChatNode {
   def main(args: Array[String]): Unit = {
@@ -23,7 +24,6 @@ object ChatNode {
       .map { localConfig =>
         val clusterConfig = ConfigFactory
           .parseString(s"""
-        akka.remote.netty.tcp.port=$port
         akka.remote.artery.canonical.port=$port
         """)
           .withFallback(ConfigFactory.load())
@@ -38,6 +38,7 @@ object ChatNode {
             while (!Thread.interrupted()) {
               CommandParser.parse(messageReader.read()) match {
                 case Right(command) =>
+                  println("command")
                   node ! command
                   if (command == SendLeave) throw new InterruptedException
                 case Left(error) => println(error.getMessage)
