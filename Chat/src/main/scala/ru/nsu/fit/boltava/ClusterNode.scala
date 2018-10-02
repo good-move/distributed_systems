@@ -4,13 +4,7 @@ import akka.actor.{Actor, ActorLogging}
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent._
 import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{
-  Publish,
-  Subscribe,
-  SubscribeAck,
-  Unsubscribe,
-  UnsubscribeAck
-}
+import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, SubscribeAck, Unsubscribe, UnsubscribeAck}
 
 import ru.nsu.fit.boltava.io.MessageWriter
 
