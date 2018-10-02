@@ -6,7 +6,7 @@ RUN echo "Installing curl" && apt-get update && apt-get install curl -y sudo
 
 ENV SCALA_VERSION 2.12.6
 ENV SBT_VERSION 1.2.3
-ENV PATH_TO_JAR ./target/scala-2.12/ChatNode.jar
+ENV JAR_NAME ./target/scala-2.12/ChatNode.jar
 
 # install java
 RUN echo "1) Installing oracle java 8" && \
