@@ -1,3 +1,7 @@
 **/.idea
 **/.scalafmt.conf
 target
+**/.DS_Store
+**/build/**
+**/out/**
+**/gradle/**
